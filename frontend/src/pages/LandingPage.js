@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getDoctors } from '../services/api';
 import { normalizeDoctor } from '../utils/doctorUtils';
+import { SAMPLE_DOCTORS } from '../data/sampleDoctors';
 import {
   Activity, Heart, Shield, Clock, Star, ChevronRight,
   Phone, Mail, MapPin, ArrowRight, CheckCircle2,
@@ -68,9 +69,12 @@ export default function LandingPage() {
     getDoctors()
       .then(res => {
         const doctorsData = Array.isArray(res.data) ? res.data : (res.data?.data || []);
-        setDoctors(doctorsData.map(normalizeDoctor));
+        const normalized = doctorsData.map(normalizeDoctor);
+        setDoctors(normalized.length > 0 ? normalized : SAMPLE_DOCTORS.map(normalizeDoctor));
       })
-      .catch(console.error)
+      .catch(() => {
+        setDoctors(SAMPLE_DOCTORS.map(normalizeDoctor));
+      })
       .finally(() => setLoadingDoctors(false));
   }, []);
 
@@ -312,8 +316,8 @@ export default function LandingPage() {
           </motion.div>
           
           {loadingDoctors ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((_, i) => (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((_, i) => (
                 <div key={i} className="bg-white rounded-2xl p-6 border border-border/50 shadow-sm">
                   <div className="w-16 h-16 rounded-2xl bg-gray-200 animate-pulse mb-4" />
                   <div className="h-5 bg-gray-200 rounded w-3/4 mb-2 animate-pulse" />
@@ -322,9 +326,11 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
+          ) : doctors.length === 0 ? (
+            <p className="text-center text-muted">No doctors available right now. Run the database seed script to add sample doctors.</p>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {doctors.slice(0, 8).map((doctor, i) => (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+              {doctors.map((doctor, i) => (
                 <motion.div 
                   key={doctor.doctor_id || i}
                   variants={fadeUp}

@@ -26,12 +26,14 @@ export default function AdminOverview() {
   }, []);
 
   const cards = stats ? [
-    { label: 'Total Patients', value: stats.totalPatients, icon: Users, color: 'from-primary/10 to-primary-light/10', iconColor: 'text-primary', trend: '+12%' },
-    { label: 'Total Doctors', value: stats.totalDoctors, icon: Stethoscope, color: 'from-accent/10 to-emerald-500/10', iconColor: 'text-accent', trend: '+3%' },
-    { label: 'Total Appointments', value: stats.totalAppointments, icon: Calendar, color: 'from-purple-500/10 to-indigo-500/10', iconColor: 'text-purple-500', trend: '+8%' },
-    { label: "Today's Appointments", value: stats.todayAppointments, icon: Clock, color: 'from-blue-500/10 to-cyan-500/10', iconColor: 'text-blue-500', trend: 'Today' },
+    { label: 'Total Patients', value: stats.totalPatients, icon: Users, color: 'from-primary/10 to-primary-light/10', iconColor: 'text-primary', trend: 'Live' },
+    { label: 'Total Doctors', value: stats.totalDoctors, icon: Stethoscope, color: 'from-accent/10 to-emerald-500/10', iconColor: 'text-accent', trend: 'Live' },
+    { label: 'Total Staff', value: stats.totalStaff ?? stats.totalDoctors, icon: Activity, color: 'from-indigo-500/10 to-purple-500/10', iconColor: 'text-indigo-500', trend: `${stats.staffPresentToday ?? 0} present` },
+    { label: 'Completed Appointments', value: stats.completedAppointments ?? 0, icon: CheckCircle2, color: 'from-success/10 to-emerald-500/10', iconColor: 'text-success', trend: 'Done' },
+    { label: 'Total Appointments', value: stats.totalAppointments, icon: Calendar, color: 'from-purple-500/10 to-indigo-500/10', iconColor: 'text-purple-500', trend: `${stats.todayAppointments} today` },
+    { label: 'Room Occupancy', value: `${stats.occupiedRooms ?? 0}/${(stats.occupiedRooms ?? 0) + (stats.availableRooms ?? 0)}`, icon: Clock, color: 'from-blue-500/10 to-cyan-500/10', iconColor: 'text-blue-500', trend: `${stats.availableRooms ?? 0} free` },
     { label: 'Pending Bills', value: stats.pendingBills, icon: AlertCircle, color: 'from-warning/10 to-orange-500/10', iconColor: 'text-warning', trend: 'Unpaid' },
-    { label: 'Total Revenue', value: `₹${parseFloat(stats.totalRevenue || 0).toLocaleString('en-IN')}`, icon: IndianRupee, color: 'from-success/10 to-emerald-500/10', iconColor: 'text-success', trend: '+15%' },
+    { label: 'Total Revenue', value: `₹${parseFloat(stats.totalRevenue || 0).toLocaleString('en-IN')}`, icon: IndianRupee, color: 'from-success/10 to-emerald-500/10', iconColor: 'text-success', trend: 'Collected' },
   ] : [];
 
   const systemHealth = [
@@ -62,9 +64,9 @@ export default function AdminOverview() {
       </motion.div>
 
       {/* Stats Grid */}
-      <motion.div initial="hidden" animate="show" variants={stagger} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <motion.div initial="hidden" animate="show" variants={stagger} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {loading
-          ? Array(6).fill(0).map((_, i) => <CardSkeleton key={i} />)
+          ? Array(8).fill(0).map((_, i) => <CardSkeleton key={i} />)
           : cards.map((c, i) => (
             <motion.div key={i} variants={fadeUp} className="stat-card group">
               <div className="flex items-start justify-between mb-4">
@@ -129,10 +131,12 @@ export default function AdminOverview() {
           <h3 className="font-display font-semibold text-dark mb-6">Quick Actions</h3>
           <div className="space-y-3">
             {[
-              { label: 'View Audit Logs', desc: 'Monitor all system activity', icon: CheckCircle2, path: '/admin/audit-logs', color: 'text-primary', bg: 'bg-primary/10' },
-              { label: 'Revenue Overview', desc: `₹${parseFloat(stats?.totalRevenue || 0).toLocaleString('en-IN')} total collected`, icon: IndianRupee, path: '/admin', color: 'text-success', bg: 'bg-success/10' },
-              { label: 'Pending Bills', desc: `${stats?.pendingBills || 0} invoices awaiting payment`, icon: AlertCircle, path: '/admin', color: 'text-warning', bg: 'bg-warning/10' },
-              { label: 'Appointment Analytics', desc: `${stats?.totalAppointments || 0} total appointments`, icon: Calendar, path: '/admin', color: 'text-purple-500', bg: 'bg-purple-500/10' },
+              { label: 'Staff & Attendance', desc: 'Update attendance for doctors, nurses & staff', icon: Activity, path: '/admin/staff', color: 'text-primary', bg: 'bg-primary/10' },
+              { label: 'Room Allocation', desc: `${stats?.occupiedRooms ?? 0} rooms occupied · assign patients`, icon: Clock, path: '/admin/rooms', color: 'text-blue-500', bg: 'bg-blue-500/10' },
+              { label: 'All Operations', desc: 'Appointments, patients, billing & records', icon: Calendar, path: '/admin/operations', color: 'text-purple-500', bg: 'bg-purple-500/10' },
+              { label: 'Audit Logs', desc: 'Monitor all system activity', icon: CheckCircle2, path: '/admin/audit-logs', color: 'text-accent', bg: 'bg-accent/10' },
+              { label: 'Revenue Overview', desc: `₹${parseFloat(stats?.totalRevenue || 0).toLocaleString('en-IN')} total collected`, icon: IndianRupee, path: '/admin/operations', color: 'text-success', bg: 'bg-success/10' },
+              { label: 'Pending Bills', desc: `${stats?.pendingBills || 0} invoices awaiting payment`, icon: AlertCircle, path: '/admin/operations', color: 'text-warning', bg: 'bg-warning/10' },
             ].map((item, i) => (
               <Link key={i} to={item.path} className="flex items-center gap-4 p-4 rounded-xl hover:bg-hover transition-colors group">
                 <div className={`w-10 h-10 rounded-xl ${item.bg} flex items-center justify-center`}>

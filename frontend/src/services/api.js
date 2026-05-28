@@ -37,5 +37,14 @@ export const getPatientBilling = (patientId) =>
 // ─── Admin ────────────────────────────────────────────
 export const getAdminDashboard = () => API.get('/api/admin/dashboard');
 export const getAuditLogs = () => API.get('/api/admin/audit-logs');
+export const getAdminStaff = (date) => API.get('/api/admin/staff', { params: { date } });
+export const updateStaffAttendance = (data) => API.post('/api/admin/staff/attendance', data);
+export const getStaffPerformance = () => API.get('/api/admin/staff/performance');
+export const addStaffMember = (data) => API.post('/api/admin/staff', data);
+export const getAdminRooms = () => API.get('/api/admin/rooms');
+export const assignPatientRoom = (data) => API.post('/api/admin/rooms/assign', data);
+export const dischargePatientRoom = (allocationId) => API.put(`/api/admin/rooms/discharge/${allocationId}`);
+export const getAdminPatients = () => API.get('/api/admin/patients');
+export const getAdminAppointments = () => API.get('/api/admin/appointments');
 
 export default API;

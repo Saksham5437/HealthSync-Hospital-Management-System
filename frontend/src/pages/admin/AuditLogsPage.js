@@ -112,8 +112,8 @@ export default function AuditLogsPage() {
                       <span className="font-mono text-xs text-muted">#{log.log_id || log.id || i + 1}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={getActionColor(log.action)}>
-                        {log.action || 'UNKNOWN'}
+                      <span className={getActionColor(log.action_type || log.action)}>
+                        {log.action_type || log.action || 'UNKNOWN'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
