@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { getDoctors } from '../services/api';
+import { normalizeDoctor } from '../utils/doctorUtils';
 import {
   Activity, Heart, Shield, Clock, Star, ChevronRight,
   Phone, Mail, MapPin, ArrowRight, CheckCircle2,
@@ -53,11 +55,23 @@ const stagger = {
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [doctors, setDoctors] = useState([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(true);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    getDoctors()
+      .then(res => {
+        const doctorsData = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        setDoctors(doctorsData.map(normalizeDoctor));
+      })
+      .catch(console.error)
+      .finally(() => setLoadingDoctors(false));
   }, []);
 
   return (
@@ -282,6 +296,67 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ─── Doctors ────────────────────────────── */}
+      <section id="doctors" className="py-24 bg-hover/30 max-w-7xl mx-auto px-6 border-b border-border/50">
+        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
+          <motion.div variants={fadeUp} className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-hover text-primary text-xs font-semibold px-4 py-2 rounded-full mb-4">
+              <Users size={12} />
+              Our Medical Experts
+            </div>
+            <h2 className="section-title text-4xl mb-4">Meet Our Top Doctors</h2>
+            <p className="text-muted max-w-xl mx-auto">Dedicated professionals committed to providing the best healthcare experience across various specializations.</p>
+          </motion.div>
+          
+          {loadingDoctors ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl p-6 border border-border/50 shadow-sm">
+                  <div className="w-16 h-16 rounded-2xl bg-gray-200 animate-pulse mb-4" />
+                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-2 animate-pulse" />
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-4 animate-pulse" />
+                  <div className="h-16 bg-gray-100 rounded-xl animate-pulse" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {doctors.slice(0, 8).map((doctor, i) => (
+                <motion.div 
+                  key={doctor.doctor_id || i}
+                  variants={fadeUp}
+                  whileHover={{ y: -4 }}
+                  className="bg-white rounded-2xl p-6 shadow-card hover:shadow-card-hover transition-all duration-300 border border-border/50 group flex flex-col h-full"
+                >
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center text-white font-bold text-xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                    {(doctor.full_name || 'Dr').split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2)}
+                  </div>
+                  <h3 className="font-display font-bold text-dark text-lg truncate mb-1" title={`Dr. ${doctor.full_name || 'Unknown'}`}>
+                    Dr. {doctor.full_name || 'Unknown'}
+                  </h3>
+                  <p className="text-primary text-sm font-medium mb-4 truncate">{doctor.specialization || 'General Practitioner'}</p>
+                  
+                  <div className="grid grid-cols-2 gap-3 mb-5 mt-auto">
+                    <div className="bg-hover rounded-xl p-3">
+                      <div className="text-muted text-xs mb-0.5">Department</div>
+                      <div className="font-semibold text-dark text-sm truncate">{doctor.department_name || 'General'}</div>
+                    </div>
+                    <div className="bg-hover rounded-xl p-3">
+                      <div className="text-muted text-xs mb-0.5">Experience</div>
+                      <div className="font-semibold text-dark text-sm truncate">{doctor.experience_years || 0} Years</div>
+                    </div>
+                  </div>
+                  
+                  <Link to="/login" className="flex items-center justify-center w-full py-2.5 rounded-xl border border-primary/20 text-primary text-sm font-semibold hover:bg-primary hover:text-white transition-colors">
+                    Book Appointment
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </motion.div>
       </section>
 
