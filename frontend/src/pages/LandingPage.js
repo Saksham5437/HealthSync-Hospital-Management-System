@@ -495,7 +495,7 @@ export default function LandingPage() {
             <p className="text-white/40 text-sm">© 2026 HealthSync. All rights reserved.</p>
             <div className="flex gap-6">
               {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map(l => (
-                <a key={l} href="#" className="text-white/40 text-sm hover:text-white transition-colors">{l}</a>
+                <button key={l} className="text-white/40 text-sm hover:text-white transition-colors">{l}</button>
               ))}
             </div>
           </div>

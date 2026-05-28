@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Stethoscope, Star, Clock, BookOpen, Filter, X } from 'lucide-react';
+import { Search, Stethoscope, Star, BookOpen, Filter, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getDoctors, bookAppointment } from '../../services/api';
 import { useAuth } from '../../utils/AuthContext';

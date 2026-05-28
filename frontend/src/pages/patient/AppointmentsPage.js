@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, Clock, User, ChevronDown } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 import { getPatientAppointments } from '../../services/api';
 import { useAuth } from '../../utils/AuthContext';
 import { PageHeader, StatusBadge, TableSkeleton, EmptyState } from '../../components/common/UIComponents';

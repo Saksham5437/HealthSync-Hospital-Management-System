@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Calendar, FileText, CreditCard, Stethoscope, User
+  LayoutDashboard, Calendar, FileText, CreditCard, Stethoscope
 } from 'lucide-react';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import PatientOverview from './PatientOverview';
@@ -22,7 +22,7 @@ const navItems = (userId) => [
 export default function PatientDashboard() {
   const { user } = useAuth();
   const items = navItems(user?.id);
-  const currentNavLabel = items.find(i => window.location.pathname === i.path)?.label || 'Dashboard';
+
 
   return (
     <DashboardLayout navItems={items} title="Patient Portal">

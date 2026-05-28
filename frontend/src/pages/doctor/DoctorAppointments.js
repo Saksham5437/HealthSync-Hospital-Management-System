@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { Calendar, CheckCircle, FilePlus, User, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getDoctorAppointments, updateAppointmentStatus, createMedicalRecord } from '../../services/api';
@@ -23,6 +22,7 @@ export default function DoctorAppointments({ showRecords = false }) {
       .finally(() => setLoading(false));
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, [user.id]);
 
   const markComplete = async (apptId) => {

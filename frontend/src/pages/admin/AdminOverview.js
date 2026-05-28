@@ -14,7 +14,7 @@ const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
 const stagger = { show: { transition: { staggerChildren: 0.08 } } };
 
 export default function AdminOverview() {
-  const { user } = useAuth();
+  useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
