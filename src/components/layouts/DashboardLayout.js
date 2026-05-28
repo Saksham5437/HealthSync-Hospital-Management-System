@@ -149,7 +149,7 @@ export default function DashboardLayout({ children, navItems, title }) {
                   >
                     <div className="px-4 py-3 border-b border-border mb-1">
                       <div className="font-semibold text-dark text-sm">{user?.name}</div>
-                      <div className="text-muted text-xs truncate">{user?.email}</div>
+                      <div className="text-muted text-xs truncate">{user?.username || user?.email}</div>
                     </div>
                     <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-muted hover:bg-hover hover:text-dark transition-colors">
                       <User size={14} /> Profile

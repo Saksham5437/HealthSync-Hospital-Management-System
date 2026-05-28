@@ -11,8 +11,15 @@ export const AuthProvider = ({ children }) => {
   });
 
   const login = (userData) => {
-    localStorage.setItem('hs_user', JSON.stringify(userData));
-    setUser(userData);
+    const profile = {
+      ...userData,
+      id: userData.profileId || userData.id,
+      profileId: userData.profileId || userData.id,
+      username: userData.username || userData.email,
+      signedInAt: new Date().toISOString(),
+    };
+    localStorage.setItem('hs_user', JSON.stringify(profile));
+    setUser(profile);
   };
 
   const logout = () => {

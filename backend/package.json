@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "test": "node --check server.js && node --check config/db.js && node --check routes/authRoutes.js && node --check routes/doctorRoutes.js && node --check routes/appointmentRoutes.js && node --check routes/medicalRecordRoutes.js && node --check routes/billingRoutes.js && node --check routes/adminRoutes.js && node --check controllers/authController.js && node --check controllers/doctorController.js && node --check controllers/appointmentController.js && node --check controllers/medicalRecordController.js && node --check controllers/billingController.js && node --check controllers/adminController.js"
   },
   "keywords": [],
   "author": "",

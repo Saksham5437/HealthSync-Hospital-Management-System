@@ -1,14 +1,16 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000',
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
 
 // ─── Auth ─────────────────────────────────────────────
-export const loginUser = (email, password) =>
-  API.post('/api/auth/login', { email, password });
+export const loginUser = (username, password, role) =>
+  API.post('/api/auth/login', { username, password, role });
+
+export const registerUser = (data) => API.post('/api/auth/register', data);
 
 // ─── Doctors ──────────────────────────────────────────
 export const getDoctors = () => API.get('/api/doctors');

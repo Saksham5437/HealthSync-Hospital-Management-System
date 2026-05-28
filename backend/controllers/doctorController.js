@@ -31,6 +31,7 @@ const getDoctorAppointments = (req, res) => {
     const sql = `
         SELECT
             a.appointment_id,
+            a.patient_id,
             su.full_name AS patient_name,
             a.appointment_date,
             a.appointment_time,

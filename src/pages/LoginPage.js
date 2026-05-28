@@ -1,31 +1,29 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Activity, ArrowRight, ShieldCheck, Clock, Users } from 'lucide-react';
+import { Eye, EyeOff, Activity, ArrowRight, ShieldCheck, Clock, Users, UserRound, Stethoscope } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { loginUser } from '../services/api';
+import { loginUser, registerUser } from '../services/api';
 import { useAuth } from '../utils/AuthContext';
 import { Spinner } from '../components/common/UIComponents';
-
-const DEMO_CREDENTIALS = [
-  { role: 'Patient', email: 'patient1@healthsync.com', password: 'hashed_password_1', color: 'bg-accent/10 text-accent border-accent/20' },
-  { role: 'Doctor', email: 'doctor1@healthsync.com', password: 'hashed_password_1', color: 'bg-primary/10 text-primary border-primary/20' },
-  { role: 'Admin', email: 'admin@healthsync.com', password: 'hashed_password_1', color: 'bg-warning/10 text-warning border-warning/20' },
-];
 
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [mode, setMode] = useState('login');
+  const [form, setForm] = useState({ fullName: '', username: '', password: '' });
+  const [accountType, setAccountType] = useState('patient');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
 
   const validate = () => {
     const e = {};
-    if (!form.email) e.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email';
+    if (mode === 'register' && !form.fullName.trim()) e.fullName = 'Full name is required';
+    if (!form.username.trim()) e.username = 'Username is required';
+    else if (form.username.trim().length < 3) e.username = 'Username must be at least 3 characters';
     if (!form.password) e.password = 'Password is required';
+    else if (mode === 'register' && form.password.length < 6) e.password = 'Password must be at least 6 characters';
     return e;
   };
 
@@ -36,23 +34,31 @@ export default function LoginPage() {
     setLoading(true);
     setErrors({});
     try {
-      const { data } = await loginUser(form.email, form.password);
+      const payload = {
+        fullName: form.fullName.trim(),
+        username: form.username.trim(),
+        password: form.password,
+        role: accountType,
+      };
+      const { data } = mode === 'register'
+        ? await registerUser(payload)
+        : await loginUser(payload.username, payload.password, payload.role);
       login(data.user);
-      toast.success(`Welcome back, ${data.user.name}!`);
-      const paths = { patient: '/patient', doctor: '/doctor', admin: '/admin' };
+      toast.success(mode === 'register' ? 'Account created successfully!' : `Welcome back, ${data.user.name}!`);
+      const paths = { patient: '/patient', doctor: '/doctor' };
       navigate(paths[data.user.role] || '/');
     } catch (err) {
-      const msg = err.response?.data?.message || 'Invalid credentials. Please try again.';
+      const msg = err.response?.data?.message ||
+        (err.code === 'ECONNABORTED'
+          ? 'Sign in timed out. Please check that the backend and database are running.'
+          : !err.response
+            ? 'Cannot reach the auth server. Please keep the backend running on port 5000.'
+            : 'Unable to sign in. Please check your credentials and try again.');
       toast.error(msg);
       setErrors({ general: msg });
     } finally {
       setLoading(false);
     }
-  };
-
-  const fillDemo = (cred) => {
-    setForm({ email: cred.email, password: cred.password });
-    setErrors({});
   };
 
   return (
@@ -149,21 +155,35 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-8">
-            <h2 className="font-display font-bold text-dark text-3xl mb-2">Welcome back</h2>
-            <p className="text-muted text-sm">Sign in to your HealthSync account</p>
+            <h2 className="font-display font-bold text-dark text-3xl mb-2">
+              {mode === 'register' ? 'Create account' : 'Welcome back'}
+            </h2>
+            <p className="text-muted text-sm">
+              {mode === 'register'
+                ? 'Register with your username and password'
+                : 'Sign in to your HealthSync account'}
+            </p>
           </div>
 
-          {/* Demo credentials */}
           <div className="mb-6">
-            <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Quick Demo Access</p>
-            <div className="flex gap-2 flex-wrap">
-              {DEMO_CREDENTIALS.map((c) => (
+            <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Account Type</p>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { value: 'patient', label: 'Patient', icon: UserRound },
+                { value: 'doctor', label: 'Doctor', icon: Stethoscope },
+              ].map((item) => (
                 <button
-                  key={c.role}
-                  onClick={() => fillDemo(c)}
-                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all hover:scale-105 ${c.color}`}
+                  key={item.value}
+                  type="button"
+                  onClick={() => { setAccountType(item.value); setErrors({}); }}
+                  className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition-all ${
+                    accountType === item.value
+                      ? 'border-primary bg-primary/10 text-primary shadow-card'
+                      : 'border-border bg-white text-muted hover:border-primary/40 hover:text-primary'
+                  }`}
                 >
-                  {c.role}
+                  <item.icon size={16} />
+                  {item.label}
                 </button>
               ))}
             </div>
@@ -180,16 +200,32 @@ export default function LoginPage() {
               </motion.div>
             )}
 
+            {mode === 'register' && (
+              <div>
+                <label className="block text-dark text-sm font-semibold mb-2">Full Name</label>
+                <input
+                  type="text"
+                  className={`input-field ${errors.fullName ? 'border-danger focus:ring-danger/30' : ''}`}
+                  placeholder={accountType === 'doctor' ? 'Dr. Your Name' : 'Your full name'}
+                  value={form.fullName}
+                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                  autoComplete="name"
+                />
+                {errors.fullName && <p className="text-danger text-xs mt-1">{errors.fullName}</p>}
+              </div>
+            )}
+
             <div>
-              <label className="block text-dark text-sm font-semibold mb-2">Email Address</label>
+              <label className="block text-dark text-sm font-semibold mb-2">Username</label>
               <input
-                type="email"
-                className={`input-field ${errors.email ? 'border-danger focus:ring-danger/30' : ''}`}
-                placeholder="you@healthsync.com"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                type="text"
+                className={`input-field ${errors.username ? 'border-danger focus:ring-danger/30' : ''}`}
+                placeholder="Enter your username"
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+                autoComplete="username"
               />
-              {errors.email && <p className="text-danger text-xs mt-1">{errors.email}</p>}
+              {errors.username && <p className="text-danger text-xs mt-1">{errors.username}</p>}
             </div>
 
             <div>
@@ -206,6 +242,7 @@ export default function LoginPage() {
                   placeholder="Enter your password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
                 />
                 <button
                   type="button"
@@ -224,18 +261,25 @@ export default function LoginPage() {
               className="w-full btn-primary flex items-center justify-center gap-2 text-sm py-3.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
             >
               {loading ? (
-                <><Spinner size={18} /> Signing in...</>
+                <><Spinner size={18} /> {mode === 'register' ? 'Creating account...' : 'Signing in...'}</>
               ) : (
-                <>Sign In <ArrowRight size={16} /></>
+                <>{mode === 'register' ? 'Register' : 'Sign In'} <ArrowRight size={16} /></>
               )}
             </button>
           </form>
 
           <p className="text-center text-muted text-sm mt-6">
-            New to HealthSync?{' '}
-            <Link to="/" className="text-primary font-semibold hover:underline">
-              Contact us to register
-            </Link>
+            {mode === 'register' ? 'Already registered?' : 'New to HealthSync?'}{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === 'register' ? 'login' : 'register');
+                setErrors({});
+              }}
+              className="text-primary font-semibold hover:underline"
+            >
+              {mode === 'register' ? 'Sign in' : 'Sign up to register'}
+            </button>
           </p>
 
           <div className="mt-8 pt-6 border-t border-border flex items-center justify-center gap-6">
