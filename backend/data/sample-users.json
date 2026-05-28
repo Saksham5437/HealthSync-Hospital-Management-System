@@ -1,0 +1,199 @@
+{
+  "password": "123456",
+  "departments": [
+    "Cardiology",
+    "Neurology",
+    "Orthopedics",
+    "Pediatrics",
+    "Dermatology",
+    "Oncology",
+    "General Medicine",
+    "Gynecology",
+    "ENT",
+    "Psychiatry"
+  ],
+  "doctors": [
+    {
+      "username": "doctor1",
+      "full_name": "Arun J Gowda",
+      "department_name": "Cardiology",
+      "specialization": "Cardiologist",
+      "experience_years": 15,
+      "qualification": "MBBS, MD (Cardiology)",
+      "consultation_fee": 1500,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor2",
+      "full_name": "Bhanumati B",
+      "department_name": "Neurology",
+      "specialization": "Neurologist",
+      "experience_years": 13,
+      "qualification": "MBBS, DM (Neurology)",
+      "consultation_fee": 1300,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor3",
+      "full_name": "Mahesh Kollur",
+      "department_name": "Pediatrics",
+      "specialization": "Pediatrician",
+      "experience_years": 12,
+      "qualification": "MBBS, MD (Pediatrics)",
+      "consultation_fee": 1200,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor4",
+      "full_name": "Rahul Patil",
+      "department_name": "Orthopedics",
+      "specialization": "Orthopedic Surgeon",
+      "experience_years": 14,
+      "qualification": "MBBS, MS (Orthopedics)",
+      "consultation_fee": 1100,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor5",
+      "full_name": "Ramesh Bhat",
+      "department_name": "Dermatology",
+      "specialization": "Dermatologist",
+      "experience_years": 16,
+      "qualification": "MBBS, MD (Dermatology)",
+      "consultation_fee": 900,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor6",
+      "full_name": "Rishi Sharma",
+      "department_name": "Oncology",
+      "specialization": "Oncologist",
+      "experience_years": 17,
+      "qualification": "MBBS, DM (Medical Oncology)",
+      "consultation_fee": 1400,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor7",
+      "full_name": "Priya Nair",
+      "department_name": "Gynecology",
+      "specialization": "Gynecologist",
+      "experience_years": 11,
+      "qualification": "MBBS, MS (Obstetrics & Gynecology)",
+      "consultation_fee": 1000,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor8",
+      "full_name": "Vikram Singh",
+      "department_name": "General Medicine",
+      "specialization": "General Physician",
+      "experience_years": 10,
+      "qualification": "MBBS, MD (General Medicine)",
+      "consultation_fee": 800,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor9",
+      "full_name": "Ananya Desai",
+      "department_name": "ENT",
+      "specialization": "ENT Specialist",
+      "experience_years": 9,
+      "qualification": "MBBS, MS (ENT)",
+      "consultation_fee": 950,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor10",
+      "full_name": "Karthik Menon",
+      "department_name": "Psychiatry",
+      "specialization": "Psychiatrist",
+      "experience_years": 8,
+      "qualification": "MBBS, MD (Psychiatry)",
+      "consultation_fee": 1100,
+      "availability_status": "unavailable"
+    },
+    {
+      "username": "doctor11",
+      "full_name": "Sneha Reddy",
+      "department_name": "Cardiology",
+      "specialization": "Interventional Cardiologist",
+      "experience_years": 12,
+      "qualification": "MBBS, DM (Cardiology)",
+      "consultation_fee": 1600,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor12",
+      "full_name": "Amit Khanna",
+      "department_name": "Orthopedics",
+      "specialization": "Sports Medicine Specialist",
+      "experience_years": 7,
+      "qualification": "MBBS, DNB (Orthopedics)",
+      "consultation_fee": 1050,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor13",
+      "full_name": "Lakshmi Iyer",
+      "department_name": "Pediatrics",
+      "specialization": "Neonatologist",
+      "experience_years": 14,
+      "qualification": "MBBS, MD (Neonatology)",
+      "consultation_fee": 1250,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor14",
+      "full_name": "Rohan Mehta",
+      "department_name": "Dermatology",
+      "specialization": "Cosmetic Dermatologist",
+      "experience_years": 6,
+      "qualification": "MBBS, MD (Dermatology)",
+      "consultation_fee": 1150,
+      "availability_status": "available"
+    },
+    {
+      "username": "doctor15",
+      "full_name": "Deepa Joshi",
+      "department_name": "General Medicine",
+      "specialization": "Internal Medicine Specialist",
+      "experience_years": 18,
+      "qualification": "MBBS, MD (Internal Medicine)",
+      "consultation_fee": 850,
+      "availability_status": "available"
+    }
+  ],
+  "patients": [
+    { "username": "patient1", "full_name": "Aarav Mehta" },
+    { "username": "patient2", "full_name": "Isha Verma" },
+    { "username": "patient3", "full_name": "Rohan Kapoor" },
+    { "username": "patient4", "full_name": "Sneha Pillai" },
+    { "username": "patient5", "full_name": "Karan Deshmukh" },
+    { "username": "patient6", "full_name": "Ananya Rao" },
+    { "username": "patient7", "full_name": "Vikram Singh" },
+    { "username": "patient8", "full_name": "Meera Nair" },
+    { "username": "patient9", "full_name": "Aditya Choudhary" },
+    { "username": "patient10", "full_name": "Priya Sharma" },
+    { "username": "patient11", "full_name": "Nikhil Gupta" },
+    { "username": "patient12", "full_name": "Divya Kulkarni" },
+    { "username": "patient13", "full_name": "Suresh Iyer" },
+    { "username": "patient14", "full_name": "Kavya Reddy" },
+    { "username": "patient15", "full_name": "Manish Joshi" },
+    { "username": "patient16", "full_name": "Pooja Banerjee" },
+    { "username": "patient17", "full_name": "Rahul Thomas" },
+    { "username": "patient18", "full_name": "Neha Agarwal" },
+    { "username": "patient19", "full_name": "Arjun Malhotra" },
+    { "username": "patient20", "full_name": "Shreya Patel" },
+    { "username": "patient21", "full_name": "Harsh Vardhan" },
+    { "username": "patient22", "full_name": "Tanvi Saxena" },
+    { "username": "patient23", "full_name": "Gaurav Mishra" },
+    { "username": "patient24", "full_name": "Ritu Chawla" },
+    { "username": "patient25", "full_name": "Siddharth Bose" },
+    { "username": "patient26", "full_name": "Anjali Menon" },
+    { "username": "patient27", "full_name": "Yash Malviya" },
+    { "username": "patient28", "full_name": "Fatima Khan" },
+    { "username": "patient29", "full_name": "Dev Prakash" },
+    { "username": "patient30", "full_name": "Swati Gokhale" }
+  ]
+}
