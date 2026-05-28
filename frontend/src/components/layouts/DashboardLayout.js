@@ -38,6 +38,16 @@ export default function DashboardLayout({ children, navItems, title }) {
     admin: 'bg-warning/10 text-warning',
   };
 
+  const isActive = (itemPath) => {
+    // Base dashboard routes (e.g. /patient, /doctor, /admin) — exact match only
+    const basePaths = ['/patient', '/doctor', '/admin'];
+    if (basePaths.includes(itemPath)) {
+      return location.pathname === itemPath || location.pathname === itemPath + '/';
+    }
+    // Sub-routes: exact match or starts with path + /
+    return location.pathname === itemPath || location.pathname.startsWith(itemPath + '/');
+  };
+
   return (
     <div className="flex h-screen bg-bg overflow-hidden">
       {/* Mobile overlay */}
@@ -67,26 +77,22 @@ export default function DashboardLayout({ children, navItems, title }) {
 
         {/* Nav Items */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path ||
-              (item.path !== '/' && location.pathname.startsWith(item.path + '/'));
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setSidebarOpen(false)}
-                className={isActive ? 'nav-item-active' : 'nav-item'}
-              >
-                <item.icon size={18} />
-                <span>{item.label}</span>
-                {item.badge && (
-                  <span className="ml-auto bg-danger text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={() => setSidebarOpen(false)}
+              className={isActive(item.path) ? 'nav-item-active' : 'nav-item'}
+            >
+              <item.icon size={18} />
+              <span>{item.label}</span>
+              {item.badge && (
+                <span className="ml-auto bg-danger text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  {item.badge}
+                </span>
+              )}
+            </Link>
+          ))}
         </nav>
 
         {/* User Profile */}
