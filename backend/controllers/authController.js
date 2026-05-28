@@ -1,7 +1,8 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 
-const allowedRoles = ['patient', 'doctor'];
+const loginRoles = ['patient', 'doctor', 'admin'];
+const registerRoles = ['patient', 'doctor'];
 const requiredDbEnv = ['DB_HOST', 'DB_USER', 'DB_NAME'];
 
 const getDbConfigError = () => {
@@ -183,8 +184,8 @@ const loginUser = async (req, res) => {
         return res.status(400).json({ message: 'Username and password are required' });
     }
 
-    if (!allowedRoles.includes(role)) {
-        return res.status(400).json({ message: 'Select patient or doctor account type' });
+    if (!loginRoles.includes(role)) {
+        return res.status(400).json({ message: 'Select patient, doctor, or admin account type' });
     }
 
     try {
@@ -240,8 +241,8 @@ const registerUser = async (req, res) => {
         return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
 
-    if (!allowedRoles.includes(role)) {
-        return res.status(400).json({ message: 'Select patient or doctor account type' });
+    if (!registerRoles.includes(role)) {
+        return res.status(400).json({ message: 'Only patient and doctor accounts can register here' });
     }
 
     let connection;

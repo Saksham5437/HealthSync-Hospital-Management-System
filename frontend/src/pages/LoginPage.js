@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Activity, ArrowRight, ShieldCheck, Clock, Users, UserRound, Stethoscope } from 'lucide-react';
+import { Eye, EyeOff, Activity, ArrowRight, ShieldCheck, Clock, Users, UserRound, Stethoscope, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { loginUser, registerUser } from '../services/api';
 import { useAuth } from '../utils/AuthContext';
@@ -29,6 +29,10 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (mode === 'register' && accountType === 'admin') {
+      toast.error('Admin accounts are created by the hospital administrator.');
+      return;
+    }
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
@@ -45,7 +49,7 @@ export default function LoginPage() {
         : await loginUser(payload.username, payload.password, payload.role);
       login(data.user);
       toast.success(mode === 'register' ? 'Account created successfully!' : `Welcome back, ${data.user.name}!`);
-      const paths = { patient: '/patient', doctor: '/doctor' };
+      const paths = { patient: '/patient', doctor: '/doctor', admin: '/admin' };
       navigate(paths[data.user.role] || '/');
     } catch (err) {
       const msg = err.response?.data?.message ||
@@ -167,16 +171,21 @@ export default function LoginPage() {
 
           <div className="mb-6">
             <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Account Type</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {[
                 { value: 'patient', label: 'Patient', icon: UserRound },
                 { value: 'doctor', label: 'Doctor', icon: Stethoscope },
+                { value: 'admin', label: 'Admin', icon: Shield },
               ].map((item) => (
                 <button
                   key={item.value}
                   type="button"
-                  onClick={() => { setAccountType(item.value); setErrors({}); }}
-                  className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition-all ${
+                  onClick={() => {
+                    setAccountType(item.value);
+                    setErrors({});
+                    if (item.value === 'admin' && mode === 'register') setMode('login');
+                  }}
+                  className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition-all ${
                     accountType === item.value
                       ? 'border-primary bg-primary/10 text-primary shadow-card'
                       : 'border-border bg-white text-muted hover:border-primary/40 hover:text-primary'
@@ -187,6 +196,11 @@ export default function LoginPage() {
                 </button>
               ))}
             </div>
+            {accountType === 'admin' && (
+              <p className="text-xs text-muted mt-3 bg-hover rounded-lg px-3 py-2">
+                Admin login only. Create your admin username and password using the backend command after setup.
+              </p>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -268,19 +282,21 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-muted text-sm mt-6">
-            {mode === 'register' ? 'Already registered?' : 'New to HealthSync?'}{' '}
-            <button
-              type="button"
-              onClick={() => {
-                setMode(mode === 'register' ? 'login' : 'register');
-                setErrors({});
-              }}
-              className="text-primary font-semibold hover:underline"
-            >
-              {mode === 'register' ? 'Sign in' : 'Sign up to register'}
-            </button>
-          </p>
+          {accountType !== 'admin' && (
+            <p className="text-center text-muted text-sm mt-6">
+              {mode === 'register' ? 'Already registered?' : 'New to HealthSync?'}{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode(mode === 'register' ? 'login' : 'register');
+                  setErrors({});
+                }}
+                className="text-primary font-semibold hover:underline"
+              >
+                {mode === 'register' ? 'Sign in' : 'Sign up to register'}
+              </button>
+            </p>
+          )}
 
           <div className="mt-8 pt-6 border-t border-border flex items-center justify-center gap-6">
             {['NABH', 'ISO 27001', 'HIPAA'].map(b => (
