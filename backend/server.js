@@ -13,7 +13,22 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+].filter(Boolean);
+
+app.use(cors({
+    origin(origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.some((o) => origin === o || origin.endsWith('.vercel.app'))) {
+            return callback(null, true);
+        }
+        return callback(null, true);
+    },
+    credentials: true,
+}));
 app.use(express.json());
 
 app.use((err, req, res, next) => {
@@ -32,6 +47,24 @@ app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => {
     res.send('HealthSync Backend Running');
+});
+
+app.get('/api/health', (req, res) => {
+    const db = require('./config/db');
+    db.query('SELECT 1 AS ok', (err) => {
+        if (err) {
+            return res.status(503).json({
+                status: 'error',
+                message: 'Database not connected',
+                detail: err.message,
+            });
+        }
+        res.json({
+            status: 'ok',
+            service: 'HealthSync API',
+            database: 'connected',
+        });
+    });
 });
 
 const PORT = process.env.PORT || 5000;

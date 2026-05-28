@@ -52,11 +52,12 @@ export default function LoginPage() {
       const paths = { patient: '/patient', doctor: '/doctor', admin: '/admin' };
       navigate(paths[data.user.role] || '/');
     } catch (err) {
+      const apiUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
       const msg = err.response?.data?.message ||
         (err.code === 'ECONNABORTED'
-          ? 'Sign in timed out. Please check that the backend and database are running.'
+          ? 'Server is waking up (Render free tier). Wait 30 seconds and try again.'
           : !err.response
-            ? 'Cannot reach the auth server. Please keep the backend running on port 5000.'
+            ? `Cannot reach the server at ${apiUrl}. Check that Render is running and Vercel has REACT_APP_API_BASE_URL set.`
             : 'Unable to sign in. Please check your credentials and try again.');
       toast.error(msg);
       setErrors({ general: msg });
