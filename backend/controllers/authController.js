@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
+const doctorProfileTemplates = require('../data/doctor-profile-templates');
 
 const loginRoles = ['patient', 'doctor', 'admin'];
 const registerRoles = ['patient', 'doctor'];
@@ -76,27 +77,34 @@ const buildUserPayload = (columns, { username, passwordHash, fullName, role }) =
     return payload;
 };
 
+const getDepartmentIdByName = async (connection, departmentName) => {
+    const existing = await run(
+        connection,
+        'SELECT department_id FROM departments WHERE department_name = ? LIMIT 1',
+        [departmentName]
+    );
+
+    if (existing.length > 0) {
+        return existing[0].department_id;
+    }
+
+    const columns = await getColumns('departments');
+
+    if (columns.department_name) {
+        const result = await run(
+            connection,
+            'INSERT INTO departments (department_name) VALUES (?)',
+            [departmentName]
+        );
+        return result.insertId;
+    }
+
+    return 1;
+};
+
 const getDepartmentId = async (connection) => {
     try {
-        const departments = await run(
-            connection,
-            'SELECT department_id FROM departments ORDER BY department_id LIMIT 1'
-        );
-
-        if (departments.length > 0) {
-            return departments[0].department_id;
-        }
-
-        const columns = await getColumns('departments');
-
-        if (columns.department_name) {
-            const result = await run(
-                connection,
-                'INSERT INTO departments (department_name) VALUES (?)',
-                ['General Medicine']
-            );
-            return result.insertId;
-        }
+        return getDepartmentIdByName(connection, 'General Medicine');
     } catch (err) {
         console.warn('Unable to resolve default department:', err.message);
     }
@@ -110,11 +118,15 @@ const insertProfile = async (connection, role, userId) => {
     const payload = { user_id: userId };
 
     if (role === 'doctor') {
-        if (columns.department_id) payload.department_id = await getDepartmentId(connection);
-        if (columns.specialization) payload.specialization = 'General Medicine';
-        if (columns.experience_years) payload.experience_years = 0;
-        if (columns.qualification) payload.qualification = 'Pending verification';
-        if (columns.consultation_fee) payload.consultation_fee = 0;
+        const profile = doctorProfileTemplates[userId % doctorProfileTemplates.length];
+
+        if (columns.department_id) {
+            payload.department_id = await getDepartmentIdByName(connection, profile.department_name);
+        }
+        if (columns.specialization) payload.specialization = profile.specialization;
+        if (columns.experience_years) payload.experience_years = profile.experience_years;
+        if (columns.qualification) payload.qualification = profile.qualification;
+        if (columns.consultation_fee) payload.consultation_fee = profile.consultation_fee;
         if (columns.availability_status) payload.availability_status = 'available';
     }
 
