@@ -29,9 +29,20 @@ Pick **one** provider (all work with Render):
 3. Copy: `MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD`, `MYSQLDATABASE`  
    (or the full `MYSQL_URL` / `DATABASE_URL`)
 
-### Option B: Aiven / TiDB / PlanetScale
+### Option B: Aiven (you are using this — `avnadmin` user)
 
-Create a MySQL instance and note host, port, user, password, database name.
+1. Go to [aiven.io](https://aiven.io) → your **MySQL** service.
+2. Open **Overview**.
+3. Copy the **Public** connection values (not VPC/internal):
+   - **Host** (e.g. `healthsync-xxxxx.a.aivencloud.com`)
+   - **Port** (often `12345`, not always 3306)
+   - **User** → usually `avnadmin`
+   - **Password** → click **Reset password** if unsure, copy the new one
+   - **Database** → usually `defaultdb`
+4. Optional: **CA certificate** → download `.pem` → paste entire file into Render env `DB_CA_CERT` (or skip and use `DB_SSL=true` only).
+
+**Important:** On Render, use **separate** `DB_HOST`, `DB_USER`, etc.  
+**Delete** `DATABASE_URL` from Render if it has an old/wrong password.
 
 ---
 
@@ -118,6 +129,7 @@ This creates tables, 15 doctors, 30 patients, rooms, staff, and your admin login
 
 | Problem | Fix |
 |---------|-----|
+| `Access denied for user 'avnadmin'` | Wrong password on Render. Aiven → **Reset password** → update `DB_PASSWORD` on Render. Remove wrong `DATABASE_URL`. |
 | `Database is not configured` on Render | Add `DB_*` or `DATABASE_URL` env vars on Render |
 | `Cannot reach the API` on Vercel | Set `REACT_APP_API_BASE_URL` on Vercel and redeploy |
 | Render slow first request | Free tier sleeps ~50s; wait and retry |

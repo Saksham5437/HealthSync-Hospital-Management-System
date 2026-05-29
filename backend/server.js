@@ -69,8 +69,26 @@ app.get('/api/health', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
+const logDatabaseStatus = () => {
+    const db = require('./config/db');
+    const { getConfigSummary } = require('./config/db');
+    const summary = getConfigSummary();
+
+    console.log(`Database config: ${summary.mode} | host=${summary.host} | db=${summary.database} | ssl=${summary.ssl}`);
+
+    db.query('SELECT 1 AS ok', (err) => {
+        if (err) {
+            console.error('Database connection failed:', err.message);
+            console.error('Fix DB_* env vars on Render (see DEPLOYMENT.md → Aiven section).');
+        } else {
+            console.log('Database connection: OK');
+        }
+    });
+};
+
 const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    logDatabaseStatus();
 });
 
 module.exports = { app, server };

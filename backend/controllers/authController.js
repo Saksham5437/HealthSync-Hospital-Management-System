@@ -217,9 +217,10 @@ const loginUser = async (req, res) => {
         });
     } catch (err) {
         console.error('Login failed:', err);
-        return res.status(500).json({
-            message: getDbConfigError() || 'Unable to sign in right now. Please check the database connection.'
-        });
+        const dbMessage = err.code === 'ER_ACCESS_DENIED_ERROR'
+            ? 'Database login failed on the server. Check DB_USER and DB_PASSWORD in Render (Aiven: reset password and update Render).'
+            : getDbConfigError() || 'Unable to sign in right now. Please check the database connection.';
+        return res.status(500).json({ message: dbMessage });
     }
 };
 
@@ -287,9 +288,10 @@ const registerUser = async (req, res) => {
     } catch (err) {
         if (connection) await rollback(connection);
         console.error('Registration failed:', err);
-        return res.status(500).json({
-            message: getDbConfigError() || 'Unable to register right now. Please check the database schema and connection.'
-        });
+        const dbMessage = err.code === 'ER_ACCESS_DENIED_ERROR'
+            ? 'Database login failed on the server. Check DB_USER and DB_PASSWORD in Render (Aiven: reset password and update Render).'
+            : getDbConfigError() || 'Unable to register right now. Please check the database schema and connection.';
+        return res.status(500).json({ message: dbMessage });
     } finally {
         if (connection) connection.release();
     }
