@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { syncDoctorsToStaff } = require('../utils/staffSync');
 
 const sendError = (res, err) => res.status(500).json({ error: err.message });
 
@@ -102,32 +103,53 @@ const getDashboardStats = (req, res) => {
 
 const getStaff = (req, res) => {
     const date = req.query.date || new Date().toISOString().slice(0, 10);
+    const staffType = req.query.staff_type;
 
-    const sql = `
-        SELECT
-            sm.staff_id,
-            sm.full_name,
-            sm.staff_type,
-            sm.doctor_id,
-            sm.department_name,
-            sm.phone,
-            sm.status,
-            sa.attendance_id,
-            sa.status AS attendance_status,
-            sa.check_in_time,
-            sa.check_out_time,
-            sa.notes AS attendance_notes
-        FROM staff_members sm
-        LEFT JOIN staff_attendance sa
-            ON sm.staff_id = sa.staff_id AND sa.attendance_date = ?
-        WHERE sm.status = 'active'
-        ORDER BY sm.staff_type, sm.full_name
-    `;
+    syncDoctorsToStaff()
+        .then(() => {
+            let sql = `
+                SELECT
+                    sm.staff_id,
+                    sm.full_name,
+                    sm.staff_type,
+                    sm.doctor_id,
+                    sm.department_name,
+                    sm.phone,
+                    sm.status,
+                    sa.attendance_id,
+                    sa.status AS attendance_status,
+                    sa.check_in_time,
+                    sa.check_out_time,
+                    sa.notes AS attendance_notes
+                FROM staff_members sm
+                LEFT JOIN staff_attendance sa
+                    ON sm.staff_id = sa.staff_id AND sa.attendance_date = ?
+                WHERE sm.status = 'active'
+            `;
+            const params = [date];
 
-    db.query(sql, [date], (err, results) => {
-        if (err) return sendError(res, err);
-        res.json(results);
-    });
+            if (staffType && ['doctor', 'nurse', 'other'].includes(staffType)) {
+                sql += ' AND sm.staff_type = ?';
+                params.push(staffType);
+            }
+
+            sql += ` ORDER BY FIELD(sm.staff_type, 'doctor', 'nurse', 'other'), sm.full_name`;
+
+            db.query(sql, params, (err, results) => {
+                if (err) return sendError(res, err);
+                res.json(results);
+            });
+        })
+        .catch((err) => sendError(res, err));
+};
+
+const syncStaffDoctors = (req, res) => {
+    syncDoctorsToStaff()
+        .then((summary) => res.json({
+            message: 'Doctors synced to staff list',
+            ...summary,
+        }))
+        .catch((err) => sendError(res, err));
 };
 
 const upsertAttendance = (req, res) => {
@@ -155,6 +177,50 @@ const upsertAttendance = (req, res) => {
             res.json({ message: 'Attendance updated successfully' });
         }
     );
+};
+
+const bulkUpsertAttendance = (req, res) => {
+    const { attendance_date, records } = req.body;
+    const valid = (records || []).filter((record) => record.staff_id && record.status);
+
+    if (!attendance_date || valid.length === 0) {
+        return res.status(400).json({ message: 'attendance_date and records array are required' });
+    }
+
+    const sql = `
+        INSERT INTO staff_attendance (staff_id, attendance_date, status, check_in_time, check_out_time, notes)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+            status = VALUES(status),
+            check_in_time = VALUES(check_in_time),
+            check_out_time = VALUES(check_out_time),
+            notes = VALUES(notes)
+    `;
+
+    const saveNext = (index) => {
+        if (index >= valid.length) {
+            return res.json({ message: `Attendance saved for ${valid.length} staff member(s)` });
+        }
+
+        const record = valid[index];
+        db.query(
+            sql,
+            [
+                record.staff_id,
+                attendance_date,
+                record.status,
+                record.check_in_time || null,
+                record.check_out_time || null,
+                record.notes || null,
+            ],
+            (err) => {
+                if (err) return sendError(res, err);
+                saveNext(index + 1);
+            }
+        );
+    };
+
+    saveNext(0);
 };
 
 const getStaffPerformance = (req, res) => {
@@ -408,7 +474,9 @@ const getAuditLogs = (req, res) => {
 module.exports = {
     getDashboardStats,
     getStaff,
+    syncStaffDoctors,
     upsertAttendance,
+    bulkUpsertAttendance,
     getStaffPerformance,
     addStaffMember,
     getRooms,

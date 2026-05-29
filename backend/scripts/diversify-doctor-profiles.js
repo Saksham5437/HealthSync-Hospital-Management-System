@@ -8,6 +8,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '..', '.env'), quiet: t
 
 const db = require('../config/db');
 const templates = require('../data/doctor-profile-templates');
+const { syncDoctorsToStaff } = require('../utils/staffSync');
 
 const query = (sql, params = []) =>
   new Promise((resolve, reject) => {
@@ -81,6 +82,9 @@ const diversify = async () => {
     }
 
     console.log(`\nUpdated ${updated} doctor profile(s) with unique specializations and fees.`);
+
+    const staffSummary = await syncDoctorsToStaff();
+    console.log(`Staff sync: ${staffSummary.totalDoctors} doctors (${staffSummary.added} added, ${staffSummary.updated} updated).`);
   } catch (err) {
     console.error('Failed:', err.message);
     process.exitCode = 1;

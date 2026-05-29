@@ -4,9 +4,11 @@ const adminController = require('../controllers/adminController');
 
 router.get('/dashboard', adminController.getDashboardStats);
 router.get('/staff', adminController.getStaff);
+router.post('/staff/sync-doctors', adminController.syncStaffDoctors);
 router.post('/staff', adminController.addStaffMember);
 router.get('/staff/performance', adminController.getStaffPerformance);
 router.post('/staff/attendance', adminController.upsertAttendance);
+router.post('/staff/attendance/bulk', adminController.bulkUpsertAttendance);
 router.get('/rooms', adminController.getRooms);
 router.post('/rooms/assign', adminController.assignRoom);
 router.put('/rooms/discharge/:id', adminController.dischargeRoom);

@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const doctorProfileTemplates = require('../data/doctor-profile-templates');
+const { syncDoctorsToStaff } = require('../utils/staffSync');
 
 const loginRoles = ['patient', 'doctor', 'admin'];
 const registerRoles = ['patient', 'doctor'];
@@ -284,6 +285,14 @@ const registerUser = async (req, res) => {
         const profileId = await insertProfile(connection, role, userId);
 
         await commit(connection);
+
+        if (role === 'doctor') {
+            try {
+                await syncDoctorsToStaff();
+            } catch (syncErr) {
+                console.warn('Doctor staff sync failed:', syncErr.message);
+            }
+        }
 
         return res.status(201).json({
             message: 'Registration successful',

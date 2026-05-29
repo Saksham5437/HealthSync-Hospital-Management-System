@@ -3,6 +3,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '..', '..', '.env'), qu
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env'), quiet: true });
 
 const db = require('../config/db');
+const { syncDoctorsToStaff } = require('../utils/staffSync');
 
 const query = (sql, params = []) =>
   new Promise((resolve, reject) => {
@@ -80,29 +81,6 @@ const SAMPLE_ROOMS = [
   { room_number: 'ER-02', ward_name: 'Emergency', floor_number: 0, room_type: 'emergency', status: 'available' },
 ];
 
-const syncDoctorStaff = async () => {
-  const doctors = await query(`
-    SELECT dp.doctor_id, su.full_name, d.department_name
-    FROM doctor_profiles dp
-    JOIN system_users su ON dp.user_id = su.user_id
-    LEFT JOIN departments d ON dp.department_id = d.department_id
-  `);
-
-  for (const doc of doctors) {
-    const existing = await query(
-      'SELECT staff_id FROM staff_members WHERE doctor_id = ? LIMIT 1',
-      [doc.doctor_id]
-    );
-    if (existing.length > 0) continue;
-
-    await query(
-      `INSERT INTO staff_members (full_name, staff_type, doctor_id, department_name, status)
-       VALUES (?, 'doctor', ?, ?, 'active')`,
-      [doc.full_name, doc.doctor_id, doc.department_name || 'General Medicine']
-    );
-  }
-};
-
 const seedNursesAndRooms = async () => {
   for (const nurse of SAMPLE_NURSES) {
     const existing = await query(
@@ -131,7 +109,7 @@ const setup = async () => {
     for (const sql of TABLES) {
       await query(sql);
     }
-    await syncDoctorStaff();
+    await syncDoctorsToStaff();
     await seedNursesAndRooms();
     console.log('Admin tables ready (staff, attendance, rooms, allocations).');
     console.log('Create an admin user with: npm run create-admin -- <username> <password> [full name]');

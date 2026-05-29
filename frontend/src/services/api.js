@@ -37,8 +37,11 @@ export const getPatientBilling = (patientId) =>
 // ─── Admin ────────────────────────────────────────────
 export const getAdminDashboard = () => API.get('/api/admin/dashboard');
 export const getAuditLogs = () => API.get('/api/admin/audit-logs');
-export const getAdminStaff = (date) => API.get('/api/admin/staff', { params: { date } });
+export const getAdminStaff = (date, staffType) =>
+  API.get('/api/admin/staff', { params: { date, staff_type: staffType || undefined } });
+export const syncDoctorStaff = () => API.post('/api/admin/staff/sync-doctors');
 export const updateStaffAttendance = (data) => API.post('/api/admin/staff/attendance', data);
+export const bulkUpdateStaffAttendance = (data) => API.post('/api/admin/staff/attendance/bulk', data);
 export const getStaffPerformance = () => API.get('/api/admin/staff/performance');
 export const addStaffMember = (data) => API.post('/api/admin/staff', data);
 export const getAdminRooms = () => API.get('/api/admin/rooms');
